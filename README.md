@@ -1,5 +1,25 @@
 # IT1244 Final Project: Machine Learning for Cancer Detection Using DNA Fragment Analysis
 
+## Environment Setup
+
+```bash
+# 1. System dependency for decision-tree visualisation
+brew install graphviz
+
+# 2. Create and populate a virtual environment (Python 3.12)
+python3.12 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+
+# 3. (Optional) register the kernel for Jupyter/VS Code
+python -m ipykernel install --user --name cancer-detection --display-name "Python (cancer-detection)"
+```
+
+In VS Code / Jupyter, select the **Python (cancer-detection)** kernel (or the `.venv`
+interpreter). The notebooks auto-detect the project root, so they run correctly
+regardless of the working directory. `requirements.lock.txt` holds the exact
+pinned versions that were verified to run end-to-end.
+
 ## Project Overview
 
 This project develops and evaluates machine learning models for early cancer detection and classification using DNA fragment length profiles. Cancer is a disease where genetic mutations can alter the length and proportions of DNA fragments in a patient's genome. By analyzing the relationship between the proportions of known DNA fragment lengths, we aim to identify the existence and stage of cancer in patients.
