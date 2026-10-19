@@ -1,0 +1,97 @@
+{
+  "spec": {
+    "name": "hns_dummy",
+    "task": "hns",
+    "model": "dummy",
+    "features": "all",
+    "selector": "none",
+    "sampler": "none",
+    "class_weight": null,
+    "log_transform": false
+  },
+  "cv": {
+    "n_splits": 5,
+    "n_repeats": 2,
+    "inner_splits": 3,
+    "seed": 42
+  },
+  "best_params": {},
+  "threshold": 0.8909070619593953,
+  "train_size": {
+    "healthy": 60,
+    "cancer": 490
+  },
+  "test_size": {
+    "healthy": 41,
+    "cancer": 230
+  },
+  "nested_cv": {
+    "roc_auc": {
+      "mean": 0.5,
+      "std": 0.0
+    },
+    "average_precision": {
+      "mean": 0.8909090909090909,
+      "std": 0.0
+    },
+    "balanced_accuracy": {
+      "mean": 0.5,
+      "std": 0.0
+    },
+    "sensitivity": {
+      "mean": 0.0,
+      "std": 0.0
+    },
+    "specificity": {
+      "mean": 1.0,
+      "std": 0.0
+    },
+    "f1_cancer": {
+      "mean": 0.0,
+      "std": 0.0
+    },
+    "sensitivity_at_95_specificity": {
+      "mean": 0.0,
+      "std": 0.0
+    }
+  },
+  "test": {
+    "roc_auc": 0.5,
+    "average_precision": 0.8487084870848709,
+    "balanced_accuracy": 0.5,
+    "sensitivity": 0.0,
+    "specificity": 1.0,
+    "f1_cancer": 0.0,
+    "sensitivity_at_95_specificity": 0.0,
+    "tp": 0,
+    "fn": 230,
+    "tn": 41,
+    "fp": 0,
+    "sensitivity_ci": [
+      -1.734723475976807e-18,
+      0.01642821465470643
+    ],
+    "specificity_ci": [
+      0.9143295511310926,
+      1.0
+    ],
+    "roc_auc_ci": [
+      0.5,
+      0.5
+    ],
+    "brier": 0.13018309319601293,
+    "ppv_at_screening_prevalence": 0.0
+  },
+  "provenance": {
+    "package_version": "0.1.0",
+    "git_commit": "ea90bbdcfd0268db87cab5ad2b448f4b1886d100",
+    "data_sha256": {
+      "train": "6e5014940ccb8d4649c9059fe710e280182c0ca5e80f91a21fdefa672fba0d45",
+      "test": "bdf7c7889cb3e069de311e0d7c9b02abc933f4a0cb7aa988fc05f669505af4a1"
+    },
+    "python": "3.12.12",
+    "sklearn": "1.5.2",
+    "imblearn": "0.12.4"
+  },
+  "runtime_seconds": 2.0
+}

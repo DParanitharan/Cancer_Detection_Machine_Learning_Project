@@ -1,0 +1,35 @@
+# Experiment matrix: every (task, variant) pair in a group becomes one experiment named "<task>_<variant>".
+# Each experiment runs nested CV on the training set, then one evaluation on the held-out test set.
+
+cv:
+  n_splits: 5       # outer folds
+  n_repeats: 2      # outer repeats (60 healthy samples make single splits noisy)
+  inner_splits: 3   # hyperparameter tuning and threshold choice
+  seed: 42
+
+variants:
+  dummy:            {model: dummy}
+  logreg_cw:        {model: logreg, class_weight: balanced}
+  logreg_under:     {model: logreg, sampler: undersample}
+  logreg_smote:     {model: logreg, sampler: smote}
+  logreg_l1_cw:     {model: logreg, selector: l1, class_weight: balanced}
+  gnb_log:          {model: gnb, log_transform: true}
+  knn_smote:        {model: knn, sampler: smote}
+  rf_cw:            {model: rf, class_weight: balanced}
+  rf_smote:         {model: rf, sampler: smote}
+  hgb_cw:           {model: hgb, class_weight: balanced}
+  logreg_bins_cw:   {model: logreg, features: bins10, class_weight: balanced}
+  rf_bins_cw:       {model: rf, features: bins10, class_weight: balanced}
+  logreg_frag_cw:   {model: logreg, features: fragmentomics, class_weight: balanced}
+  rf_frag_cw:       {model: rf, features: fragmentomics, class_weight: balanced}
+
+groups:
+  # Baseline, model families and imbalance strategies (class weighting vs resampling)
+  - tasks: [hnc, hne, hns]
+    variants: [dummy, logreg_cw, logreg_under, logreg_smote, logreg_l1_cw, gnb_log, knn_smote, rf_cw, rf_smote, hgb_cw]
+  # Compact representations: 10 bp bins and fragmentomics summary features
+  - tasks: [hnc, hne, hns]
+    variants: [logreg_bins_cw, rf_bins_cw, logreg_frag_cw, rf_frag_cw]
+  # Train on every cancer sample, evaluate on one stage
+  - tasks: [hne_all, hns_all]
+    variants: [logreg_cw, rf_cw]

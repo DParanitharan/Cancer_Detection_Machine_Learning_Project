@@ -1,0 +1,14 @@
+# Fast end-to-end check used by CI; not a meaningful evaluation.
+
+cv:
+  n_splits: 2
+  n_repeats: 1
+  inner_splits: 2
+  seed: 42
+
+variants:
+  logreg_cw: {model: logreg, class_weight: balanced}
+
+groups:
+  - tasks: [hns]
+    variants: [logreg_cw]

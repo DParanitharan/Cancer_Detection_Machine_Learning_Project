@@ -1,0 +1,99 @@
+{
+  "spec": {
+    "name": "hne_knn_smote",
+    "task": "hne",
+    "model": "knn",
+    "features": "all",
+    "selector": "none",
+    "sampler": "smote",
+    "class_weight": null,
+    "log_transform": false
+  },
+  "cv": {
+    "n_splits": 5,
+    "n_repeats": 2,
+    "inner_splits": 3,
+    "seed": 42
+  },
+  "best_params": {
+    "model__n_neighbors": 9
+  },
+  "threshold": 0.8902102100966891,
+  "train_size": {
+    "healthy": 60,
+    "cancer": 781
+  },
+  "test_size": {
+    "healthy": 41,
+    "cancer": 368
+  },
+  "nested_cv": {
+    "roc_auc": {
+      "mean": 0.7148681202025151,
+      "std": 0.08186593895461908
+    },
+    "average_precision": {
+      "mean": 0.9617323216957955,
+      "std": 0.011672900834116429
+    },
+    "balanced_accuracy": {
+      "mean": 0.6343683651804671,
+      "std": 0.0641216624186185
+    },
+    "sensitivity": {
+      "mean": 0.7854033970276009,
+      "std": 0.16406644027349618
+    },
+    "specificity": {
+      "mean": 0.4833333333333334,
+      "std": 0.2166666666666667
+    },
+    "f1_cancer": {
+      "mean": 0.8502521855938365,
+      "std": 0.10769569809368237
+    },
+    "sensitivity_at_95_specificity": {
+      "mean": 0.029368773477053734,
+      "std": 0.06113034725602964
+    }
+  },
+  "test": {
+    "roc_auc": 0.7825424178154825,
+    "average_precision": 0.9614981623139199,
+    "balanced_accuracy": 0.7190813891834571,
+    "sensitivity": 0.6820652173913043,
+    "specificity": 0.7560975609756098,
+    "f1_cancer": 0.7980922098569156,
+    "sensitivity_at_95_specificity": 0.0,
+    "tp": 251,
+    "fn": 117,
+    "tn": 31,
+    "fp": 10,
+    "sensitivity_ci": [
+      0.6328144330850044,
+      0.7275540679111187
+    ],
+    "specificity_ci": [
+      0.606563693455418,
+      0.8617514424897758
+    ],
+    "roc_auc_ci": [
+      0.7084247415164369,
+      0.8515616715270413
+    ],
+    "brier": 0.08098671011868687,
+    "ppv_at_screening_prevalence": 0.027471163420187877
+  },
+  "provenance": {
+    "package_version": "0.1.0",
+    "git_commit": "ea90bbdcfd0268db87cab5ad2b448f4b1886d100",
+    "data_sha256": {
+      "train": "6e5014940ccb8d4649c9059fe710e280182c0ca5e80f91a21fdefa672fba0d45",
+      "test": "bdf7c7889cb3e069de311e0d7c9b02abc933f4a0cb7aa988fc05f669505af4a1"
+    },
+    "python": "3.12.12",
+    "sklearn": "1.5.2",
+    "imblearn": "0.12.4"
+  },
+  "runtime_seconds": 4.6
+}

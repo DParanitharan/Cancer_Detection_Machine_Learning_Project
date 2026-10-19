@@ -1,0 +1,97 @@
+{
+  "spec": {
+    "name": "hne_gnb_log",
+    "task": "hne",
+    "model": "gnb",
+    "features": "all",
+    "selector": "none",
+    "sampler": "none",
+    "class_weight": null,
+    "log_transform": true
+  },
+  "cv": {
+    "n_splits": 5,
+    "n_repeats": 2,
+    "inner_splits": 3,
+    "seed": 42
+  },
+  "best_params": {},
+  "threshold": 0.9071339602908522,
+  "train_size": {
+    "healthy": 60,
+    "cancer": 781
+  },
+  "test_size": {
+    "healthy": 41,
+    "cancer": 368
+  },
+  "nested_cv": {
+    "roc_auc": {
+      "mean": 0.620275327998258,
+      "std": 0.054621332849798344
+    },
+    "average_precision": {
+      "mean": 0.9454430032885364,
+      "std": 0.008483461454086582
+    },
+    "balanced_accuracy": {
+      "mean": 0.5921525396047688,
+      "std": 0.05141945681002818
+    },
+    "sensitivity": {
+      "mean": 0.8259717458762046,
+      "std": 0.07433200792744363
+    },
+    "specificity": {
+      "mean": 0.3583333333333333,
+      "std": 0.11211353372561428
+    },
+    "f1_cancer": {
+      "mean": 0.8790587309166297,
+      "std": 0.044717505031575615
+    },
+    "sensitivity_at_95_specificity": {
+      "mean": 0.0,
+      "std": 0.0
+    }
+  },
+  "test": {
+    "roc_auc": 0.6260935843054083,
+    "average_precision": 0.9232168671708573,
+    "balanced_accuracy": 0.6204268292682926,
+    "sensitivity": 0.875,
+    "specificity": 0.36585365853658536,
+    "f1_cancer": 0.899441340782123,
+    "sensitivity_at_95_specificity": 0.0,
+    "tp": 322,
+    "fn": 46,
+    "tn": 15,
+    "fp": 26,
+    "sensitivity_ci": [
+      0.8372880170513064,
+      0.9049635223138426
+    ],
+    "specificity_ci": [
+      0.23589630416936816,
+      0.5187957674783876
+    ],
+    "roc_auc_ci": [
+      0.5487904294803818,
+      0.7061373276776246
+    ],
+    "brier": 0.08937618272710178,
+    "ppv_at_screening_prevalence": 0.013745869055031371
+  },
+  "provenance": {
+    "package_version": "0.1.0",
+    "git_commit": "ea90bbdcfd0268db87cab5ad2b448f4b1886d100",
+    "data_sha256": {
+      "train": "6e5014940ccb8d4649c9059fe710e280182c0ca5e80f91a21fdefa672fba0d45",
+      "test": "bdf7c7889cb3e069de311e0d7c9b02abc933f4a0cb7aa988fc05f669505af4a1"
+    },
+    "python": "3.12.12",
+    "sklearn": "1.5.2",
+    "imblearn": "0.12.4"
+  },
+  "runtime_seconds": 2.0
+}

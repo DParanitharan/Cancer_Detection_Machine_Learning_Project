@@ -1,0 +1,100 @@
+{
+  "spec": {
+    "name": "hns_rf_frag_cw",
+    "task": "hns",
+    "model": "rf",
+    "features": "fragmentomics",
+    "selector": "none",
+    "sampler": "none",
+    "class_weight": "balanced",
+    "log_transform": false
+  },
+  "cv": {
+    "n_splits": 5,
+    "n_repeats": 2,
+    "inner_splits": 3,
+    "seed": 42
+  },
+  "best_params": {
+    "model__max_depth": null,
+    "model__min_samples_leaf": 1
+  },
+  "threshold": 0.905307453914376,
+  "train_size": {
+    "healthy": 60,
+    "cancer": 490
+  },
+  "test_size": {
+    "healthy": 41,
+    "cancer": 230
+  },
+  "nested_cv": {
+    "roc_auc": {
+      "mean": 0.3453231292517006,
+      "std": 0.07342646453373489
+    },
+    "average_precision": {
+      "mean": 0.8418283907518731,
+      "std": 0.023689770221308998
+    },
+    "balanced_accuracy": {
+      "mean": 0.4441326530612245,
+      "std": 0.051536575506420323
+    },
+    "sensitivity": {
+      "mean": 0.363265306122449,
+      "std": 0.3660464508295789
+    },
+    "specificity": {
+      "mean": 0.5250000000000001,
+      "std": 0.3764785666025506
+    },
+    "f1_cancer": {
+      "mean": 0.41247936436920973,
+      "std": 0.34490202483291466
+    },
+    "sensitivity_at_95_specificity": {
+      "mean": 0.005102040816326531,
+      "std": 0.015306122448979593
+    }
+  },
+  "test": {
+    "roc_auc": 0.4053552492046659,
+    "average_precision": 0.8043900993514433,
+    "balanced_accuracy": 0.465694591728526,
+    "sensitivity": 0.8826086956521739,
+    "specificity": 0.04878048780487805,
+    "f1_cancer": 0.8601694915254238,
+    "sensitivity_at_95_specificity": 0.008695652173913044,
+    "tp": 203,
+    "fn": 27,
+    "tn": 2,
+    "fp": 39,
+    "sensitivity_ci": [
+      0.8345900921537803,
+      0.9180561435887054
+    ],
+    "specificity_ci": [
+      0.013480662282573552,
+      0.16139266962351367
+    ],
+    "roc_auc_ci": [
+      0.3187155355249205,
+      0.49692603393425233
+    ],
+    "brier": 0.13359365309014345,
+    "ppv_at_screening_prevalence": 0.009285404299422215
+  },
+  "provenance": {
+    "package_version": "0.1.0",
+    "git_commit": "ea90bbdcfd0268db87cab5ad2b448f4b1886d100",
+    "data_sha256": {
+      "train": "6e5014940ccb8d4649c9059fe710e280182c0ca5e80f91a21fdefa672fba0d45",
+      "test": "bdf7c7889cb3e069de311e0d7c9b02abc933f4a0cb7aa988fc05f669505af4a1"
+    },
+    "python": "3.12.12",
+    "sklearn": "1.5.2",
+    "imblearn": "0.12.4"
+  },
+  "runtime_seconds": 10.0
+}

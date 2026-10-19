@@ -158,3 +158,8 @@ cython_debug/
 /first_decision_tree.png
 /My own rough summary
 
+/best_gradient_boosting_tree.png
+
+# Saved models (python -m cancer_detection run --save-models) and tool caches
+/models/
+.ruff_cache/

@@ -1,0 +1,99 @@
+{
+  "spec": {
+    "name": "hne_logreg_smote",
+    "task": "hne",
+    "model": "logreg",
+    "features": "all",
+    "selector": "none",
+    "sampler": "smote",
+    "class_weight": null,
+    "log_transform": false
+  },
+  "cv": {
+    "n_splits": 5,
+    "n_repeats": 2,
+    "inner_splits": 3,
+    "seed": 42
+  },
+  "best_params": {
+    "model__C": 10
+  },
+  "threshold": 0.8066811607779586,
+  "train_size": {
+    "healthy": 60,
+    "cancer": 781
+  },
+  "test_size": {
+    "healthy": 41,
+    "cancer": 368
+  },
+  "nested_cv": {
+    "roc_auc": {
+      "mean": 0.9182563013773205,
+      "std": 0.04227794412625445
+    },
+    "average_precision": {
+      "mean": 0.9916816762972301,
+      "std": 0.005223850963008745
+    },
+    "balanced_accuracy": {
+      "mean": 0.8564633349665197,
+      "std": 0.03824372264578045
+    },
+    "sensitivity": {
+      "mean": 0.904593336599706,
+      "std": 0.03810942901061936
+    },
+    "specificity": {
+      "mean": 0.8083333333333333,
+      "std": 0.075
+    },
+    "f1_cancer": {
+      "mean": 0.9422014790646486,
+      "std": 0.020747737137931044
+    },
+    "sensitivity_at_95_specificity": {
+      "mean": 0.552698840437694,
+      "std": 0.22723310446493064
+    }
+  },
+  "test": {
+    "roc_auc": 0.9352465535524921,
+    "average_precision": 0.9916190523568709,
+    "balanced_accuracy": 0.8765906680805938,
+    "sensitivity": 0.9239130434782609,
+    "specificity": 0.8292682926829268,
+    "f1_cancer": 0.9510489510489509,
+    "sensitivity_at_95_specificity": 0.7309782608695652,
+    "tp": 340,
+    "fn": 28,
+    "tn": 34,
+    "fp": 7,
+    "sensitivity_ci": [
+      0.892230618212157,
+      0.9468363393310549
+    ],
+    "specificity_ci": [
+      0.6873709004537024,
+      0.914748560047261
+    ],
+    "roc_auc_ci": [
+      0.8949430010604454,
+      0.9686522401908801
+    ],
+    "brier": 0.05297738126925491,
+    "ppv_at_screening_prevalence": 0.05182849749408842
+  },
+  "provenance": {
+    "package_version": "0.1.0",
+    "git_commit": "ea90bbdcfd0268db87cab5ad2b448f4b1886d100",
+    "data_sha256": {
+      "train": "6e5014940ccb8d4649c9059fe710e280182c0ca5e80f91a21fdefa672fba0d45",
+      "test": "bdf7c7889cb3e069de311e0d7c9b02abc933f4a0cb7aa988fc05f669505af4a1"
+    },
+    "python": "3.12.12",
+    "sklearn": "1.5.2",
+    "imblearn": "0.12.4"
+  },
+  "runtime_seconds": 5.4
+}

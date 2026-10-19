@@ -1,144 +1,139 @@
-# IT1244 Final Project: Machine Learning for Cancer Detection Using DNA Fragment Analysis
+# Cancer Detection from cfDNA Fragment Lengths
 
-## Environment Setup
+Can the length distribution of cell-free DNA (cfDNA) fragments in blood separate cancer patients from healthy people? This repository started as the IT1244 final project (Team 22, 2024). It was re-audited in 2026: the original notebooks were corrected, and a tested, leakage-safe pipeline (`src/cancer_detection`) now produces every reported number.
 
-```bash
-# 1. System dependency for decision-tree visualisation
-brew install graphviz
+> **Not for clinical use.** The dataset has only 60 healthy training samples and 41 healthy test samples. See [Limitations](#limitations).
 
-# 2. Create and populate a virtual environment (Python 3.12)
-python3.12 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+## Data
 
-# 3. (Optional) register the kernel for Jupyter/VS Code
-python -m ipykernel install --user --name cancer-detection --display-name "Python (cancer-detection)"
+`data/raw/Train_Set.csv` and `data/raw/Test_Set.csv`: one row per person and 350 features, `length_51` … `length_400`. Each feature is the frequency of fragments of that length in base pairs, divided by the person's most common length (so every row's maximum is 1). The label column is `class_label`.
+
+| Class | Train | Test |
+|---|---|---|
+| healthy | 60 | 41 |
+| early stage cancer | 781 | 368 |
+| screening stage cancer | 490 | 230 |
+| mid stage cancer | 453 | 206 |
+| late stage cancer | 409 | 189 |
+
+Healthy people are the **rare** class. Always predicting "cancer" therefore scores very high accuracy and F1, so results are reported as balanced accuracy, ROC-AUC, sensitivity and specificity instead. `reports/data_audit.md` covers integrity checks, train/test shift and open provenance questions.
+
+## Tasks
+
+| Task | Train on | Test on |
+|---|---|---|
+| `hnc` | healthy vs all cancer stages | healthy vs all cancer stages |
+| `hne` | healthy vs early stage | healthy vs early stage |
+| `hns` | healthy vs screening stage | healthy vs screening stage |
+| `hne_all` | healthy vs all cancer stages | healthy vs early stage |
+| `hns_all` | healthy vs all cancer stages | healthy vs screening stage |
+
+## Method
+
+Every fitted step lives inside one `imblearn` pipeline, so cross-validation refits all of them on each training fold:
+
+```text
+features (raw 350 / 10 bp bins / fragmentomics) -> log (Naive Bayes) -> standardise -> L1 selection (optional)
+    -> SMOTE or undersampling (training folds only) -> classifier
 ```
 
-In VS Code / Jupyter, select the **Python (cancer-detection)** kernel (or the `.venv`
-interpreter). The notebooks auto-detect the project root, so they run correctly
-regardless of the working directory. `requirements.lock.txt` holds the exact
-pinned versions that were verified to run end-to-end.
+- **Nested cross-validation.** The outer loop (5 folds × 2 repeats) estimates performance. Inside each outer training fold, an inner 3-fold loop tunes hyperparameters by ROC-AUC and chooses the decision threshold that maximises balanced accuracy.
+- **One test evaluation.** The final model is tuned on the full training set and scored once on the test set. Probabilities are Platt-calibrated using out-of-fold predictions. Test metrics come with 95% intervals (Wilson for sensitivity and specificity, bootstrap for ROC-AUC).
+- **Models are compared by nested-CV score only.** Test scores are reported but never used for selection.
+- **Baselines.** Every task includes a `DummyClassifier`, and results tables show what "always cancer" would score.
+- **Models:**
+  - logistic regression (L2, optional L1 feature selection)
+  - Gaussian Naive Bayes on log features
+  - KNN
+  - Random Forest
+  - histogram gradient boosting
 
-## Project Overview
+  Class imbalance is handled by class weighting, undersampling or SMOTE, and these are compared directly.
+- **Reproducibility.** Each run record in `results/runs/*.json` stores the spec, best hyperparameters, nested-CV and test metrics, the git commit, SHA-256 hashes of the data files, and library versions.
 
-This project develops and evaluates machine learning models for early cancer detection and classification using DNA fragment length profiles. Cancer is a disease where genetic mutations can alter the length and proportions of DNA fragments in a patient's genome. By analyzing the relationship between the proportions of known DNA fragment lengths, we aim to identify the existence and stage of cancer in patients.
+## Results
 
-The dataset consists of max normalized frequencies of DNA fragment lengths (350 features) and a response variable indicating health status or cancer stage. The project focuses on building classifiers to:
+Full tables: [`reports/results.md`](reports/results.md). Learning curves and fragment-length importance: [`reports/analysis.md`](reports/analysis.md).
 
-- Distinguish healthy individuals from those with cancer
-- Differentiate early-stage cancer vs healthy
-- Differentiate screening-stage cancer vs healthy
+The model for each task is chosen by nested-CV balanced accuracy. Held-out test results include 95% intervals.
 
-## Biological Motivation
+| Task | Model chosen by CV | CV balanced acc | Test balanced acc | Test ROC-AUC | Sensitivity | Specificity |
+|---|---|---|---|---|---|---|
+| Early stage vs healthy | logistic regression + SMOTE | 0.856 ± 0.038 | 0.877 | 0.935 [0.89, 0.97] | 0.92 [0.89, 0.95] | 0.83 [0.69, 0.91] |
+| All cancer vs healthy | logistic regression, 10 bp bins | 0.754 ± 0.067 | 0.773 | 0.869 [0.83, 0.91] | 0.60 [0.56, 0.63] | 0.95 [0.84, 0.99] |
+| Screening stage vs healthy | none beats chance | 0.444–0.495 | — | — | — | — |
 
-Cancer often remains asymptomatic until advanced stages, making early detection critical for effective, non-invasive treatment. Genetic mutations in cancer can change the distribution of DNA fragment lengths. By profiling these fragment proportions, machine learning models can be trained to detect cancer presence and stage without requiring prior identification of specific genetic markers.
+- **Early-stage cancer is separable from healthy.** The most important fragment lengths sit at 120–130 bp, the short-fragment band associated with tumour-derived cfDNA. Validation ROC-AUC is still rising at 48 healthy training samples, so more healthy samples would likely help.
+- **Screening-stage cancer is not.** Every model and imbalance strategy scores at chance in nested CV, and training on all cancer stages does not transfer (test balanced accuracy 0.52).
+- **Simple models win.** Class-weighted or SMOTE logistic regression matches or beats random forests and gradient boosting on held-out data. The eight fragmentomics summary features lose information compared with the raw or binned lengths.
+- **Screening would still be impractical.** At a 1% cancer prevalence, the best early-stage model's positive calls would be real cancers only about 5% of the time (range 3–10%).
+- **The original notebooks gave a misleading picture.** Their saved results came from a resampled test set and from F1 on the majority class.
 
-## Data & Preprocessing
+## Setup
 
-- **Train_Set.csv**: 2193 samples
-- **Test_Set.csv**: 1034 samples
-- **Features**: 350 max normalized frequencies of DNA fragment lengths
-- **Classes**: healthy, early-stage cancer, screening-stage cancer, mid-stage cancer, late-stage cancer
+Python 3.12 is recommended.
 
-Preprocessing steps include:
+```bash
+python3.12 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements-dev.txt   # runtime deps, the package (editable) and dev tools
+pre-commit install                    # strips notebook outputs and runs ruff on every commit
+brew install graphviz                 # only needed for the tree plots in the original notebooks
+```
 
-- Checking for missing data (none found)
-- Filtering response variables for each classification scenario
-- Standardizing features
-- Converting response variable to binary (0: healthy, 1: cancer)
+## Usage
 
-## Feature Selection Techniques
+```bash
+python -m cancer_detection run configs/experiments.yaml            # all experiments -> results/runs/
+python -m cancer_detection run configs/experiments.yaml --only hne_rf_cw --save-models   # one, saving the model to models/
+python -m cancer_detection summary                                  # -> reports/results.md
+python -m cancer_detection audit                                    # -> reports/data_audit.md
+python -m cancer_detection analysis configs/experiments.yaml --names hnc_rf_cw   # -> reports/analysis.md
+pytest                                                              # tests
+ruff check .                                                        # lint
+```
 
-To avoid overfitting and improve model generalization, four feature selection methods were used:
+To add an experiment, add a variant and a group entry in `configs/experiments.yaml`. A saved model (`models/<name>.joblib`) contains the pipeline, the calibrator and the decision threshold. Its metadata JSON records the expected feature columns and the run's provenance.
 
-- **L1 Lasso Regularization**: Penalizes less important features, removing those with low impact.
-- **Principal Component Analysis (PCA)**: Reduces dimensionality by retaining principal components explaining most variance.
-- **Recursive Feature Elimination (RFE)**: Iteratively removes least important features based on logistic regression p-values.
-- **Correlation Analysis**: Identifies and removes highly correlated features to reduce redundancy.
+## Repository structure
 
-Features are scored across these methods, and only the most significant are retained for each classification scenario.
+```text
+configs/                 experiment matrices (experiments.yaml, smoke.yaml for CI)
+data/raw/                Train_Set.csv, Test_Set.csv
+src/cancer_detection/    data loading and validation, features, pipelines, evaluation, CLI
+tests/                   pytest suite (synthetic data plus a real-data schema check)
+results/runs/            one JSON record per experiment
+reports/                 results.md, analysis.md, data_audit.md, ERRATA.md, original report (PDF), figures/
+notebooks/               original course notebooks (01-03 preprocessing, models/) and 04_pipeline_results.ipynb
+```
 
-## Machine Learning Techniques
+## Original course notebooks
 
-- **K-Means Clustering**: Unsupervised grouping of similar DNA profiles to explore data structure.
-- **Logistic Regression**: Models the probability of cancer presence using a sigmoid function; outputs binary predictions.
-- **Decision Trees & Ensemble Methods**: RandomForest, AdaBoost, and GradientBoosting classifiers for interpretable, tree-based classification. Max depth set to 8 to prevent overfitting.
-- **K-Nearest Neighbors (KNN)**: Instance-based classification; hyperparameter tuning and cross-validation (GridSearchCV) used to optimize K.
-- **Gaussian Naive Bayes (GNB)**: Probabilistic classification assuming normal distribution of features; log-transform applied to features to better approximate normality.
+The notebooks in `notebooks/` are the original study, kept so the course work stays reproducible. They have been corrected:
 
-## Evaluation Metrics
+- seeds are fixed,
+- logistic regression and KNN are standardised,
+- the broken p-value and PCA feature votes are removed,
+- the correlation sweep is fixed,
+- the tree-ensemble notebook's label flip and crashes are fixed,
+- KNN no longer chooses k using the test set.
 
-- **Precision, Recall, F1 Score, AUC (Area Under Curve)**: Used to assess model performance, with emphasis on minimizing false negatives (FN) due to higher clinical cost.
-- **Confusion Matrix, ROC-AUC, Precision-Recall Curves**: Visual and quantitative evaluation of classifier effectiveness.
+They still run each preprocessing notebook through `%run`, and some still cross-validate on already-resampled data. Use the package for any new work. Outputs are stripped on commit, so run them in Jupyter to see results.
 
-## Results & Discussion
+The original report (`reports/IT1244 Project Report_Team 22.docx.pdf`) contains errors, including results computed on a resampled test set. Read it together with [`reports/ERRATA.md`](reports/ERRATA.md).
 
-- Logistic Regression and GNB showed moderate precision and recall, with high recall for cancer detection but lower for other outcomes.
-- Decision Tree ensembles (RandomForest, AdaBoost, GradientBoosting) achieved higher precision and F1 scores, with boosting methods helping to reduce overfitting.
-- KNN performance was optimized using hyperparameter tuning and cross-validation.
-- Feature selection and dimensionality reduction were critical to avoid overfitting and improve generalization to unseen test data.
+## Limitations
+
+- **Too few healthy samples.** With 60 healthy training samples and 41 healthy test samples, specificity estimates have wide intervals (for example, 23/41 has a 95% interval of 0.41–0.70).
+- **Inverted prevalence.** 96% of the test set has cancer; a screening population is closer to 1%. Each results table shows the positive predictive value at 1% prevalence, which is much lower than any number measured here.
+- **Unknown provenance.** It is unknown whether healthy and cancer samples share sites, sequencing batches or age ranges. A model could learn those differences instead of cancer. See `reports/data_audit.md`.
 
 ## References
 
-- [Machine learning‐assisted evaluation of circulating DNA quantitative analysis for cancer screening](https://www.sciencedirect.com/science/article/pii/S2001037014000464)
-- [Support Vector Machine Approach for Cancer Detection Using Amplified Fragment Length Polymorphism (AFLP) Screening Method](https://dl.acm.org/doi/10.1145/1056808.1056822)
+- [Machine learning-assisted evaluation of circulating DNA quantitative analysis for cancer screening](https://www.sciencedirect.com/science/article/pii/S2001037014000464)
+- [Support Vector Machine Approach for Cancer Detection Using AFLP Screening](https://dl.acm.org/doi/10.1145/1056808.1056822)
 - [A machine learning approach to optimizing cell-free DNA sequencing panels: with an application to prostate cancer](https://bmccancer.biomedcentral.com/articles/10.1186/s12885-020-07013-6)
-- [Lasso Regression](https://www.ibm.com/topics/lasso-regression)
-- [Principal Component Analysis](https://www.ibm.com/topics/principal-component-analysis)
-- [Recursive Feature Elimination for Feature Selection](https://medium.com/@rithpansanga/logistic-regression-for-feature-selection-selecting-the-right-features-for-your-model-410ca093c5e0)
 
-## How to Use
+## Authors
 
-1. Clone the repository to your local machine.
-2. Open the notebooks in Jupyter or VS Code.
-3. Run the preprocessing steps to prepare the data.
-4. Execute model training and evaluation cells for each scenario.
-5. Review the results and visualizations to compare model performance.
-
-## Author
-
-Forked and maintained by dhxrth.
-
-## License
-
-See LICENSE file for details.
-
-## Repository Structure
-
-- **Jupyter Notebooks**: Step-by-step analysis, model building, and evaluation for different classification tasks:
-  - Healthy vs Cancer
-  - Healthy vs Early Stage Cancer
-  - Healthy vs Screening Stage Cancer
-  - Decision Tree and KNN models for all scenarios
-  - Logistic Regression and Gaussian Naive Bayes models
-- **code/**: Contains reusable Python scripts for data preprocessing and additional model implementations.
-- **Train_Set.csv / Test_Set.csv**: Labeled datasets for training and testing the models.
-
-## Techniques Used
-
-- **Data Preprocessing**: Cleaning, feature selection, and transformation using pandas and custom scripts.
-- **Class Balancing**: Addressing class imbalance with RandomUnderSampler from the imblearn package.
-- **Modeling Algorithms**:
-  - **Decision Tree Classifier**: For interpretable, tree-based classification.
-  - **K-Nearest Neighbors (KNN)**: For instance-based learning and classification.
-  - **Logistic Regression**: For probabilistic binary classification.
-  - **Gaussian Naive Bayes**: For fast, probabilistic classification assuming feature independence.
-- **Evaluation Metrics**: Accuracy, precision, recall, F1-score, and confusion matrix to assess model performance.
-- **Visualization**: Matplotlib for plotting results and model summaries.
-
-## How to Use
-
-1. Clone the repository to your local machine.
-2. Open the notebooks in Jupyter or VS Code.
-3. Run the preprocessing steps to prepare the data.
-4. Execute model training and evaluation cells for each scenario.
-5. Review the results and visualizations to compare model performance.
-
-## Author
-
-Forked and maintained by dhxrth.
-
-## License
-
-See LICENSE file for details.
+IT1244 Team 22 (see the report for the full author list). No license file is included, so all rights are reserved by the authors.

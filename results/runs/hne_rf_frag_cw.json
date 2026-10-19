@@ -1,0 +1,100 @@
+{
+  "spec": {
+    "name": "hne_rf_frag_cw",
+    "task": "hne",
+    "model": "rf",
+    "features": "fragmentomics",
+    "selector": "none",
+    "sampler": "none",
+    "class_weight": "balanced",
+    "log_transform": false
+  },
+  "cv": {
+    "n_splits": 5,
+    "n_repeats": 2,
+    "inner_splits": 3,
+    "seed": 42
+  },
+  "best_params": {
+    "model__max_depth": null,
+    "model__min_samples_leaf": 1
+  },
+  "threshold": 0.885718911643896,
+  "train_size": {
+    "healthy": 60,
+    "cancer": 781
+  },
+  "test_size": {
+    "healthy": 41,
+    "cancer": 368
+  },
+  "nested_cv": {
+    "roc_auc": {
+      "mean": 0.7672690742555393,
+      "std": 0.05264728842643638
+    },
+    "average_precision": {
+      "mean": 0.9718557151246108,
+      "std": 0.008371186452721033
+    },
+    "balanced_accuracy": {
+      "mean": 0.6943879634166259,
+      "std": 0.053694695440448595
+    },
+    "sensitivity": {
+      "mean": 0.7304425934999184,
+      "std": 0.10265462903766415
+    },
+    "specificity": {
+      "mean": 0.6583333333333334,
+      "std": 0.1314977819838292
+    },
+    "f1_cancer": {
+      "mean": 0.8271017997858078,
+      "std": 0.07347307608479173
+    },
+    "sensitivity_at_95_specificity": {
+      "mean": 0.16712395884370407,
+      "std": 0.14589692250127012
+    }
+  },
+  "test": {
+    "roc_auc": 0.7593451749734889,
+    "average_precision": 0.9624455065746793,
+    "balanced_accuracy": 0.7042682926829269,
+    "sensitivity": 0.75,
+    "specificity": 0.6585365853658537,
+    "f1_cancer": 0.8389057750759877,
+    "sensitivity_at_95_specificity": 0.28804347826086957,
+    "tp": 276,
+    "fn": 92,
+    "tn": 27,
+    "fp": 14,
+    "sensitivity_ci": [
+      0.7033287899452703,
+      0.7915055696314957
+    ],
+    "specificity_ci": [
+      0.5054955435372689,
+      0.7844138263335655
+    ],
+    "roc_auc_ci": [
+      0.6752319724284199,
+      0.83056650980912
+    ],
+    "brier": 0.08054825831298723,
+    "ppv_at_screening_prevalence": 0.021704605611434623
+  },
+  "provenance": {
+    "package_version": "0.1.0",
+    "git_commit": "ea90bbdcfd0268db87cab5ad2b448f4b1886d100",
+    "data_sha256": {
+      "train": "6e5014940ccb8d4649c9059fe710e280182c0ca5e80f91a21fdefa672fba0d45",
+      "test": "bdf7c7889cb3e069de311e0d7c9b02abc933f4a0cb7aa988fc05f669505af4a1"
+    },
+    "python": "3.12.12",
+    "sklearn": "1.5.2",
+    "imblearn": "0.12.4"
+  },
+  "runtime_seconds": 11.0
+}
